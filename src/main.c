@@ -36,6 +36,7 @@ void build_feed(const char *url, GtkWidget *listbox)
         GtkWidget *row = gtk_label_new(display_text);
         gtk_label_set_line_wrap(GTK_LABEL(row), TRUE);
         gtk_label_set_max_width_chars(GTK_LABEL(row), 20);
+        gtk_label_set_xalign(GTK_LABEL(row), 0.0f);
         gtk_list_box_insert(GTK_LIST_BOX(listbox), row, -1);
 
         // Free allocated memory
