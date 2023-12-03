@@ -40,14 +40,26 @@ void build_feed(const char *url, GtkWidget *listbox)
         fprintf(stderr, "Error while parsing url: %s\n", mrss_strerror(err));
         return;
     }
-
-    channel = root->item;
     
-    if (channel == NULL)
-    {
-        fprintf(stderr, "No items in root element!\n");
-        return;
-    }
+    GtkWidget *title_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+
+    // Create and add a label for the title
+    GtkWidget *title_label = gtk_label_new(root->title);
+    gtk_box_pack_start(GTK_BOX(title_box), title_label, FALSE, FALSE, 0);
+
+    // Add additional spacing at the bottom
+    GtkWidget *spacer = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(title_box), spacer, FALSE, FALSE, 10);
+
+    // Create a GtkListBoxRow for the title
+    GtkWidget *title_row = gtk_list_box_row_new();
+    gtk_container_add(GTK_CONTAINER(title_row), title_box);
+
+    // Make the title row non-selectable
+    gtk_list_box_row_set_selectable(GTK_LIST_BOX_ROW(title_row), FALSE);
+
+    // Insert title into listbox
+    gtk_list_box_insert(GTK_LIST_BOX(listbox), title_row, -1);
 
     int stop = 0;
     for (item = root->item; item != NULL && stop < 5; item = item->next, ++stop)
