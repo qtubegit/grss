@@ -4,12 +4,36 @@
 #include <events.h>
 #include <stdbool.h>
 
+// Struct that packs build_feed arguments
+typedef struct
+{
+    char *url;
+    GtkWidget *listbox;
+} feed_ui_t;
+
+void build_feed(const char *url, GtkWidget *listbox);
+gboolean refresh_feed(gpointer data);
+
+
+// Intermediate wrapper that for build feed
+gboolean refresh_feed(gpointer data)
+{
+    feed_ui_t *feed_data = (feed_ui_t *)data;
+
+    build_feed(feed_data->url, feed_data->listbox);
+
+    // G_SOURCE_CONTINUE keeps the timer running
+    return G_SOURCE_CONTINUE;
+}
+
 // Function to parse and process the RSS feed
 void build_feed(const char *url, GtkWidget *listbox)
 {
     mrss_error_t err;
     mrss_t *root = NULL;
     mrss_item_t *channel = NULL, *item = NULL;
+
+    gtk_container_foreach(GTK_CONTAINER(listbox), (GtkCallback)gtk_widget_destroy, NULL);
 
     if ((err = mrss_parse_url(url, &root)) != MRSS_OK)
     {
@@ -43,6 +67,7 @@ void build_feed(const char *url, GtkWidget *listbox)
         g_free(display_text);
     }
 
+    gtk_widget_show_all(listbox);
     mrss_free(root);
 }
 
@@ -52,7 +77,7 @@ int main(int argc, char *argv[]) {
 
     // Create the main window
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "minRSS");
+    gtk_window_set_title(GTK_WINDOW(window), "gRSS");
     gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
     g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), NULL);
 
@@ -65,10 +90,15 @@ int main(int argc, char *argv[]) {
     // Create a listbox to display the RSS items
     GtkWidget *listbox = gtk_list_box_new();
     gtk_container_add(GTK_CONTAINER(scrolledwindow), listbox);
-    build_feed("https://www.amren.com/category/podcasts/feed", listbox);
+
+    // Build feed and initialize timers for the subscribed-to feed
+    feed_ui_t feed1 = {.url = "https://www.amren.com/category/podcasts/feed", .listbox = listbox};
+    build_feed(feed1.url, feed1.listbox);
+    guint timer_id = g_timeout_add(60000, refresh_feed, (gpointer) &feed1);
 
     gtk_widget_show_all(window);
     gtk_main();
 
+    g_source_remove(timer_id);
     return 0;
 }
