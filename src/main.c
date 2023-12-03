@@ -57,13 +57,14 @@ int main(int argc, char *argv[]) {
     g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), NULL);
 
     // Create a vertical box layout
-    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(window), vbox);
+    GtkWidget *scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), scrolledwindow, TRUE, TRUE, 0);
 
     // Create a listbox to display the RSS items
     GtkWidget *listbox = gtk_list_box_new();
-    gtk_box_pack_start(GTK_BOX(vbox), listbox, TRUE, TRUE, 0);
-
+    gtk_container_add(GTK_CONTAINER(scrolledwindow), listbox);
     build_feed("https://www.amren.com/category/podcasts/feed", listbox);
 
     gtk_widget_show_all(window);
