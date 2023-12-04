@@ -10,8 +10,11 @@
 #include <webkit2/webkit2.h>
 #include <vector>
 #include <type_traits>
+#include <fstream>
 
 gboolean refresh_feed(gpointer data);
+
+std::vector<std::string> read_sources(const std::string&);
 
 struct feed_item_t
 {
@@ -40,7 +43,7 @@ struct window_ui_t
     std::vector<feed_ui_t> feeds;
     std::vector<guint> timers;
 
-    window_ui_t(std::initializer_list<std::string_view> url_list)
+    window_ui_t(std::vector<std::string> url_list)
     {
         // Set up window
         window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -55,7 +58,7 @@ struct window_ui_t
         gtk_box_pack_start(GTK_BOX(vbox), scrolledwindow, TRUE, TRUE, 0);
 
         // Feeds loop (Build Multiple Feeds)
-        for (auto url : url_list)
+        for (const auto& url : url_list)
         {
             GtkWidget *listbox = gtk_list_box_new();
             feeds.push_back(feed_ui_t(url, listbox));
