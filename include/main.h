@@ -7,7 +7,6 @@
 #include <string>
 #include <events.h>
 #include <stdbool.h>
-#include <webkit2/webkit2.h>
 #include <vector>
 #include <type_traits>
 #include <fstream>
