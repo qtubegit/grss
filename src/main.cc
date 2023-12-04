@@ -39,6 +39,7 @@ struct window_ui_t
 
     window_ui_t(std::initializer_list<std::string_view> url_list)
     {
+        // Set up window
         window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
         gtk_window_set_title(GTK_WINDOW(window), "gRSS");
         gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
@@ -54,12 +55,14 @@ struct window_ui_t
         for (auto url : url_list)
         {
             GtkWidget *listbox = gtk_list_box_new();
-            gtk_container_add(GTK_CONTAINER(scrolledwindow), listbox);
             feed_ui_t feed(url, listbox);
             feed.build_feed();
             feeds.push_back(feed);
             timers.push_back(g_timeout_add(60000, refresh_feed, (gpointer) &feeds.back()));
         }
+
+        // Show first feed on the window
+        gtk_container_add(GTK_CONTAINER(scrolledwindow), feeds[0].listbox);
 
         gtk_widget_show_all(window);
     }
@@ -140,7 +143,13 @@ void feed_ui_t::build_feed()
         g_free(display_text);
     }
 
+    // Show widgets (refresh)
     gtk_widget_show_all(listbox);
+
+    // Add callback on row selection
+    g_signal_connect(listbox, "row-activated", G_CALLBACK(on_row_activated), NULL);
+
+    // Free root element of the XML
     mrss_free(root);
 }
 
