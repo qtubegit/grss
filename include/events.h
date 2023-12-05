@@ -14,8 +14,9 @@
     #include <unistd.h>
 #endif
 
+gboolean on_key_press(GtkWidget*, GdkEventKey *, gpointer);
 void on_window_destroy(GtkWidget*, gpointer);
-void on_row_activated(GtkWidget*, GtkWidget*, gpointer);
+gboolean on_row_activated(GtkWidget*, GtkWidget*, gpointer);
 
 
 #endif
