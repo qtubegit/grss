@@ -26,10 +26,12 @@ struct feed_ui_t
 {
     std::string url;
     GtkWidget *listbox;
+    GtkWidget *channel_list;
     std::vector<feed_item_t> items;
 
     feed_ui_t() : listbox{NULL} {}
-    feed_ui_t(std::string_view _url, GtkWidget *_listbox) : url{_url}, listbox{_listbox} {}
+    feed_ui_t(std::string_view _url, GtkWidget *_listbox, GtkWidget *_channel_list) 
+        : url{_url}, listbox{_listbox}, channel_list(_channel_list) {}
 
     void build_feed();
 };
@@ -38,6 +40,7 @@ struct window_ui_t
 {
     GtkWidget *window;
     GtkWidget *webview;
+    GtkWidget *channel_list;
 
     std::vector<feed_ui_t> feeds;
     std::vector<guint> timers;
@@ -51,16 +54,21 @@ struct window_ui_t
         g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), NULL);
 
         // Create a vertical box layout
-        GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-        gtk_container_add(GTK_CONTAINER(window), vbox);
-        GtkWidget *scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
-        gtk_box_pack_start(GTK_BOX(vbox), scrolledwindow, TRUE, TRUE, 0);
+        GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+        gtk_container_add(GTK_CONTAINER(window), hbox);
+        
+        GtkWidget *scrolledwindow_left = gtk_scrolled_window_new(NULL, NULL);
+        GtkWidget *scrolledwindow_right = gtk_scrolled_window_new(NULL, NULL);
+        gtk_box_pack_start(GTK_BOX(hbox), scrolledwindow_left, TRUE, TRUE, 0);
+        gtk_box_pack_start(GTK_BOX(hbox), scrolledwindow_right, TRUE, TRUE, 0);
+
+        channel_list = gtk_list_box_new();
 
         // Feeds loop (Build Multiple Feeds)
         for (const auto& url : url_list)
         {
             GtkWidget *listbox = gtk_list_box_new();
-            feeds.push_back(feed_ui_t(url, listbox));
+            feeds.push_back(feed_ui_t(url, listbox, channel_list));
 
             auto& feed = feeds.back();
             feed.build_feed();
@@ -73,7 +81,8 @@ struct window_ui_t
         }
 
         // Show first feed on the window
-        gtk_container_add(GTK_CONTAINER(scrolledwindow), feeds[0].listbox);
+        gtk_container_add(GTK_CONTAINER(scrolledwindow_left), channel_list);
+        gtk_container_add(GTK_CONTAINER(scrolledwindow_right), feeds[0].listbox);
 
         gtk_widget_show_all(window);
     }

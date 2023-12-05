@@ -8,6 +8,7 @@ void feed_ui_t::build_feed()
     mrss_item_t *channel = NULL, *item = NULL;
 
     gtk_container_foreach(GTK_CONTAINER(listbox), (GtkCallback)gtk_widget_destroy, NULL);
+    gtk_container_foreach(GTK_CONTAINER(channel_list), (GtkCallback)gtk_widget_destroy, NULL);
 
     if ((err = mrss_parse_url(const_cast<char*>(url.c_str()), &root)) != MRSS_OK)
     {
@@ -19,6 +20,7 @@ void feed_ui_t::build_feed()
 
     // Create and add a label for the title
     GtkWidget *title_label = gtk_label_new(root->title);
+    gtk_label_set_line_wrap(GTK_LABEL(title_label), TRUE);
     gtk_box_pack_start(GTK_BOX(title_box), title_label, FALSE, FALSE, 0);
 
     // Add additional spacing at the bottom
@@ -33,13 +35,13 @@ void feed_ui_t::build_feed()
     gtk_list_box_row_set_selectable(GTK_LIST_BOX_ROW(title_row), FALSE);
 
     // Insert title into listbox
-    gtk_list_box_insert(GTK_LIST_BOX(listbox), title_row, -1);
+    gtk_list_box_insert(GTK_LIST_BOX(channel_list), title_row, -1);
 
     int stop = 0;
     for (item = root->item; item != NULL && stop < 5; item = item->next, ++stop)
     {
         char *display_text = g_strdup_printf("%s\n%s", item->title
-                                                        , item->link);
+                                                     , item->link);
 
         // Store items
         this->items.push_back({item->title, item->link, item->description});
