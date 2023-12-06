@@ -31,8 +31,7 @@ struct feed_ui_t
     std::vector<feed_item_t> items;
     guint timer;
 
-    feed_ui_t(std::string_view _url) 
-        : url{_url}, timer{0}, listbox{NULL} {}
+    feed_ui_t(std::string_view _url) : url{_url}, timer{0}, listbox{NULL} {}
 
     template <bool REFRESH>
     void build_feed();
