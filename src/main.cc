@@ -45,25 +45,30 @@ window_ui_t::window_ui_t(const std::vector<std::string>& source_list)
         gtk_list_box_insert(GTK_LIST_BOX(channel_list), channel_row, -1);
     }
 
+    // Build listbox and feed
+    listbox_right = gtk_list_box_new();
     auto& feed = feeds.back();
-    feed.build_feed<false>();
+    feed.build_feed<false>(GTK_LIST_BOX(listbox_right));
 
-    // Add timer for feed
-    feed.set_refresh_timer(60000);
+    // Add refresh timer
+    timer = g_timeout_add(60000, refresh_feed, (gpointer) this);
 
-    // Show feed
-    gtk_container_add(GTK_CONTAINER(scrolledwindow_right), feed.listbox);
-    current_feed_index = feeds.size()-1;
+    // Add listbox_right signal handler
+    g_signal_connect(listbox_right, "row-activated", G_CALLBACK(on_row_activated), (gpointer) this);
 
     // Attach CNTRL-K handler
     g_signal_connect(G_OBJECT(window), "key-press-event", G_CALLBACK(on_key_press), (gpointer) this);
+
+    // Show feed
+    gtk_container_add(GTK_CONTAINER(scrolledwindow_right), listbox_right);
+    current_feed_index = feeds.size()-1;
 
     gtk_widget_show_all(window);
 }
 
 // Function to parse and process the RSS feed
 template <bool REFRESH>
-void feed_ui_t::build_feed()
+void feed_ui_t::build_feed(GtkListBox *listbox)
 {
     mrss_error_t err;
     mrss_t *root = NULL;
@@ -78,7 +83,6 @@ void feed_ui_t::build_feed()
     // If it's a refresh call, do not allocate further memory
     if constexpr (!REFRESH)
     {
-        listbox = gtk_list_box_new();
             
         GtkWidget *title_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
 
@@ -99,15 +103,15 @@ void feed_ui_t::build_feed()
         gtk_list_box_row_set_selectable(GTK_LIST_BOX_ROW(title_row), FALSE);
 
         // Insert title into listbox
-        gtk_list_box_insert(GTK_LIST_BOX(listbox), title_row, -1);
+        gtk_list_box_insert(GTK_LIST_BOX(listbox), title_row, 0);
     }
-    else
-    {
-        int i = 1;
-        GtkListBoxRow *row = NULL;
-        while ((row = gtk_list_box_get_row_at_index(GTK_LIST_BOX(listbox), i)) != NULL)
-            gtk_widget_destroy((GtkWidget*)row);
-    }
+
+    int i = 1;
+    GtkListBoxRow *row = NULL;
+    while ((row = gtk_list_box_get_row_at_index(GTK_LIST_BOX(listbox), i)) != NULL)
+        gtk_widget_destroy((GtkWidget*)row);
+
+    items.erase(items.begin(), items.end());
 
     int stop = 0;
     for (item = root->item; item != NULL && stop < BUILD_FEED_MAX_ENTRIES; item = item->next, stop++)
@@ -144,15 +148,12 @@ void feed_ui_t::build_feed()
         // Free allocated memory
         g_free(display_text);
     }
-    
-    // Add row activated handler
-    if constexpr (!REFRESH) 
-        g_signal_connect(listbox, "row-activated", G_CALLBACK(on_row_activated), (gpointer) this);
 
     // Free root element of the XML
     mrss_free(root);
 }
 
+/*
 void feed_ui_t::set_refresh_timer(std::size_t millis)
 {
     if (this->timer == 0)
@@ -169,7 +170,8 @@ void feed_ui_t::remove_refresh_timer()
         timer = 0;
     }
 }
-
+*/
+/*
 void feed_ui_t::reset_feed()
 {
     // Remove timer
@@ -181,16 +183,16 @@ void feed_ui_t::reset_feed()
 
     items.erase(items.begin(), items.end());
 }
+*/
 
 // Intermediate wrapper that for build feed
 gboolean refresh_feed(gpointer data)
 {
-    feed_ui_t *feed = (feed_ui_t*)data;
+    window_ui_t *wnd = (window_ui_t*)data;
 
-    feed->build_feed<true>();
+    wnd->feeds[wnd->current_feed_index].build_feed<true>(GTK_LIST_BOX(wnd->listbox_right));
 
-    GtkWidget *toplevel = gtk_widget_get_toplevel(feed->listbox);
-    gtk_widget_show_all(toplevel);
+    gtk_widget_show_all(wnd->scrolledwindow_right);
 
     // G_SOURCE_CONTINUE keeps the timer running
     return G_SOURCE_CONTINUE;

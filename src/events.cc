@@ -1,24 +1,16 @@
 #include <events.h>
 #include <main.h>
 
-gboolean switch_feed(window_ui_t *wnd, std::size_t feed_index) 
+static void switch_feed(window_ui_t *wnd, std::size_t feed_index) 
 {
     auto& old_feed = wnd->feeds[wnd->current_feed_index];
-    
-    // Remove listbox from scrollview
-    gtk_container_remove(GTK_CONTAINER(wnd->scrolledwindow_right), old_feed.listbox);
-
-    // Reset feed
-    old_feed.reset_feed();
 
     // Increase the index
     wnd->current_feed_index = feed_index;
 
     // Attach new listbox
-    auto& new_feed = wnd->feeds[wnd->current_feed_index];
-    new_feed.build_feed<false>();
-    new_feed.set_refresh_timer(60000);
-    gtk_container_add(GTK_CONTAINER(wnd->scrolledwindow_right), new_feed.listbox);
+    auto& new_feed = wnd->feeds[feed_index];
+    new_feed.build_feed<false>(GTK_LIST_BOX(wnd->listbox_right));
 
     gtk_widget_show_all(wnd->window);
 }
