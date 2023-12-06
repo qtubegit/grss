@@ -56,11 +56,12 @@ void feed_ui_t::build_feed(GtkListBox *listbox)
         {
             // Store items
             items.push_back({(item->title != NULL) ? item->title : "(None)",
-                                        (item->link != NULL) ? item->link : "(None)",
-                                        (item->description != NULL) ? item->description : "(None)"});
+                                        (item->enclosure_url != NULL) ? item->enclosure_url
+                                            : (item->link != NULL) ? item->link : "(None)",
+                                        (item->description != NULL) ? strip_html(item->description) : "(None)"});
 
-            char *display_text = g_strdup_printf("%s\n%s", items.back().title.c_str()
-                                                        , items.back().link.c_str());
+            char *display_text = g_strdup_printf("%s\n\n\n%s", items.back().title.c_str()
+                                                        , items.back().description.c_str());
 
             // Create ItemBox
             GtkWidget *item_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
@@ -94,8 +95,8 @@ void feed_ui_t::build_feed(GtkListBox *listbox)
     {
         for (const auto& item : items)
         {
-            char *display_text = g_strdup_printf("%s\n%s", item.title.c_str()
-                                                            , item.link.c_str());
+            char *display_text = g_strdup_printf("%s\n\n\n%s", item.title.c_str()
+                                                            , item.description.c_str());
 
             // Create ItemBox
             GtkWidget *item_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);

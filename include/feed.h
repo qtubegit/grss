@@ -9,6 +9,7 @@
 #include <vector>
 #include <type_traits>
 #include <events.h>
+#include <helpers.h>
 
 #define BUILD_FEED_MAX_ENTRIES 20
 

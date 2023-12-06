@@ -46,20 +46,20 @@ gboolean on_row_activated(GtkWidget *listbox, GtkWidget *row, gpointer data)
 
     if (index > 0)
     {
-        const char* url = wnd->feeds[wnd->current_feed_index].items[index-1].link.c_str();
+        std::string_view url = wnd->feeds[wnd->current_feed_index].items[index-1].link.c_str();
         
         #ifdef _WIN32
             // Windows
             ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
         #elif __APPLE__
             // macOS
-            char command[255];
-            sprintf(command, "open %s", url);
+            char command[url.size()+256];
+            sprintf(command, "open %s", url.data());
             system(command);
         #elif __linux__
             // Linux
-            char command[255];
-            sprintf(command, "xdg-open %s", url);
+            char command[url.size()+256];
+            sprintf(command, "xdg-open %s", url.data());
             system(command);
         #else
             #error Unsupported operating system
