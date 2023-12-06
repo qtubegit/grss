@@ -10,7 +10,11 @@ static void switch_feed(window_ui_t *wnd, std::size_t feed_index)
 
     // Attach new listbox
     auto& new_feed = wnd->feeds[feed_index];
-    new_feed.build_feed<false>(GTK_LIST_BOX(wnd->listbox_right));
+
+    if (!new_feed.items.empty())
+        new_feed.build_feed<false>(GTK_LIST_BOX(wnd->listbox_right));
+    else
+        new_feed.build_feed<true>(GTK_LIST_BOX(wnd->listbox_right));
 
     // Select new row in the left scroll bar
     gtk_list_box_select_row(GTK_LIST_BOX(wnd->channel_list),
@@ -37,12 +41,12 @@ gboolean on_key_press(GtkWidget *_, GdkEventKey *event, gpointer data)
 
 gboolean on_row_activated(GtkWidget *listbox, GtkWidget *row, gpointer data)
 {
-    feed_ui_t *feed = reinterpret_cast<feed_ui_t*>(data);
+    window_ui_t *wnd = reinterpret_cast<window_ui_t*>(data);
     gint index = gtk_list_box_row_get_index(GTK_LIST_BOX_ROW(row));
 
     if (index > 0)
     {
-        const char* url = feed->items[index-1].link.c_str();
+        const char* url = wnd->feeds[wnd->current_feed_index].items[index-1].link.c_str();
         
         #ifdef _WIN32
             // Windows

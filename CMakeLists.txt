@@ -14,7 +14,11 @@ link_directories(${GTK3_LIBRARY_DIRS})
 
 message(STATUS ${GTK3_LIBRARY_DIRS})
 
-add_executable(minrss ${SOURCE_FILES}/main.cc ${SOURCE_FILES}/events.cc)
+add_executable(minrss ${SOURCE_FILES}/main.cc
+    ${SOURCE_FILES}/window_ui.cc
+    ${SOURCE_FILES}/events.cc
+    ${SOURCE_FILES}/feed.cc
+    ${SOURCE_FILES}/helpers.cc)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(minrss PUBLIC -g -fsanitize=address -fsanitize=undefined)
