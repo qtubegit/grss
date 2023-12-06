@@ -14,6 +14,7 @@ std::string strip_html(std::string_view old_str)
             new_str.push_back(c);
     }
 
+    new_str.shrink_to_fit();
     return new_str;
 }
 

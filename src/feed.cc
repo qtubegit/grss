@@ -59,6 +59,10 @@ void feed_ui_t::build_feed(GtkListBox *listbox)
                                         (item->enclosure_url != NULL) ? item->enclosure_url
                                             : (item->link != NULL) ? item->link : "(None)",
                                         (item->description != NULL) ? strip_html(item->description) : "(None)"});
+            
+            // Shorten the description
+            items.back().description.resize(MAX_DESCRIPTION_LEN);
+            items.back().description += " [...]";
 
             char *display_text = g_strdup_printf("%s\n\n\n%s", items.back().title.c_str()
                                                         , items.back().description.c_str());

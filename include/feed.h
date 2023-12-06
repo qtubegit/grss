@@ -12,6 +12,7 @@
 #include <helpers.h>
 
 #define BUILD_FEED_MAX_ENTRIES 20
+#define MAX_DESCRIPTION_LEN 256
 
 gboolean refresh_feed(gpointer data);
 
