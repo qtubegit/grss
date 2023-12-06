@@ -45,6 +45,10 @@ window_ui_t::window_ui_t(const std::vector<std::string>& source_list)
         gtk_list_box_insert(GTK_LIST_BOX(channel_list), channel_row, -1);
     }
 
+    // Set the last-row as selected
+    gtk_list_box_select_row(GTK_LIST_BOX(channel_list),
+        gtk_list_box_get_row_at_index(GTK_LIST_BOX(channel_list), feeds.size()-1));
+
     // Build listbox and feed
     listbox_right = gtk_list_box_new();
     auto& feed = feeds.back();

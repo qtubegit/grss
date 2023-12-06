@@ -12,6 +12,10 @@ static void switch_feed(window_ui_t *wnd, std::size_t feed_index)
     auto& new_feed = wnd->feeds[feed_index];
     new_feed.build_feed<false>(GTK_LIST_BOX(wnd->listbox_right));
 
+    // Select new row in the left scroll bar
+    gtk_list_box_select_row(GTK_LIST_BOX(wnd->channel_list),
+        gtk_list_box_get_row_at_index(GTK_LIST_BOX(wnd->channel_list), wnd->current_feed_index));
+
     gtk_widget_show_all(wnd->window);
 }
 
