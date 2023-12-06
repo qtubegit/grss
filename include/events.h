@@ -17,6 +17,6 @@
 gboolean on_key_press(GtkWidget*, GdkEventKey *, gpointer);
 void on_window_destroy(GtkWidget*, gpointer);
 gboolean on_row_activated(GtkWidget*, GtkWidget*, gpointer);
-
+gboolean on_channel_row_activated(GtkWidget*, GtkWidget*, gpointer);
 
 #endif

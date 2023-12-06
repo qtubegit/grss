@@ -1,7 +1,7 @@
 #include <main.h>
 
 // Constructor for window_ui_t
-window_ui_t::window_ui_t(const std::vector<std::string>& url_list)
+window_ui_t::window_ui_t(const std::vector<std::string>& source_list)
 {
     // Set up window
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -9,23 +9,42 @@ window_ui_t::window_ui_t(const std::vector<std::string>& url_list)
     gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
     g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), NULL);
 
-    // Create a vertical box layout
+    // Create a horizontal box layout
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_container_add(GTK_CONTAINER(window), hbox);
     
-    //scrolledwindow_left = gtk_scrolled_window_new(NULL, NULL);
+    scrolledwindow_left = gtk_scrolled_window_new(NULL, NULL);
     scrolledwindow_right = gtk_scrolled_window_new(NULL, NULL);
     //box_invisible = gtk_window_new(GTK_WINDOW_POPUP);
-    //gtk_box_pack_start(GTK_BOX(hbox), scrolledwindow_left, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), scrolledwindow_left, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), scrolledwindow_right, TRUE, TRUE, 0);
 
-    //channel_list = gtk_list_box_new();
+    // Channel list
+    channel_list = gtk_list_box_new();
+    gtk_container_add(GTK_CONTAINER(scrolledwindow_left), channel_list);
+    g_signal_connect(channel_list, "row-activated", G_CALLBACK(on_channel_row_activated), (gpointer)this);
 
     // Feeds loop (Build Multiple Feeds)
-    for (const auto& url : url_list)
-        feeds.push_back(feed_ui_t(url/*, channel_list*/));
+    for (const auto& source : source_list) {
+        std::string delimiter = ",";
+        std::size_t d1 = source.find(delimiter);
+        std::string title = source.substr(0, d1);
+        std::string url = source.substr(d1 + 1, source.length());
 
-    // Build feed
+        feeds.push_back(feed_ui_t(url));
+
+        // Channel list
+        GtkWidget *channel_row = gtk_list_box_row_new();
+        GtkWidget *channel_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+        GtkWidget *channel_label = gtk_label_new(title.c_str());
+
+        gtk_label_set_xalign(GTK_LABEL(channel_label), 0.0f);
+        gtk_label_set_line_wrap(GTK_LABEL(channel_label), TRUE);
+        gtk_container_add(GTK_CONTAINER(channel_row), channel_box);
+        gtk_box_pack_start(GTK_BOX(channel_box), channel_label, FALSE, FALSE, 0);
+        gtk_list_box_insert(GTK_LIST_BOX(channel_list), channel_row, -1);
+    }
+
     auto& feed = feeds.back();
     feed.build_feed<false>();
 
@@ -33,7 +52,6 @@ window_ui_t::window_ui_t(const std::vector<std::string>& url_list)
     feed.set_refresh_timer(60000);
 
     // Show feed
-    //gtk_container_add(GTK_CONTAINER(scrolledwindow_left), channel_list);
     gtk_container_add(GTK_CONTAINER(scrolledwindow_right), feed.listbox);
     current_feed_index = feeds.size()-1;
 
@@ -51,8 +69,6 @@ void feed_ui_t::build_feed()
     mrss_t *root = NULL;
     mrss_item_t *channel = NULL, *item = NULL;
 
-    //gtk_container_foreach(GTK_CONTAINER(channel_list), (GtkCallback)gtk_widget_destroy, NULL);
-
     if ((err = mrss_parse_url(const_cast<char*>(url.c_str()), &root)) != MRSS_OK)
     {
         fprintf(stderr, "Error while parsing url: %s\n", mrss_strerror(err));
@@ -63,7 +79,7 @@ void feed_ui_t::build_feed()
     if constexpr (!REFRESH)
     {
         listbox = gtk_list_box_new();
-        
+            
         GtkWidget *title_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
 
         // Create and add a label for the title
@@ -130,7 +146,7 @@ void feed_ui_t::build_feed()
     }
     
     // Add row activated handler
-    if constexpr (!REFRESH)
+    if constexpr (!REFRESH) 
         g_signal_connect(listbox, "row-activated", G_CALLBACK(on_row_activated), (gpointer) this);
 
     // Free root element of the XML
