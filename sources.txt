@@ -1,4 +1,5 @@
 Maizen,https://yewtu.be/feed/channel/UCM3yhFc0-fBFuvqx1Vg2YNQ
+Maizen YT,https://www.youtube.com/feeds/videos.xml?channel_id=UCM3yhFc0-fBFuvqx1Vg2YNQ
 Megaphone New Heights,https://feeds.megaphone.fm/newheights
 NBC Podcasts,https://podcastfeeds.nbcnews.com/RPWEjhKq
 Art19,https://rss.art19.com/-exposed-
