@@ -9,16 +9,15 @@ window_ui_t::window_ui_t(const std::vector<std::string>& source_list)
     gtk_window_set_title(GTK_WINDOW(window), "gRSS");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 400);
     g_signal_connect(window, "destroy", G_CALLBACK(on_window_destroy), NULL);
-
-    // Create a horizontal box layout
-    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_container_add(GTK_CONTAINER(window), hbox);
     
     scrolledwindow_left = gtk_scrolled_window_new(NULL, NULL);
     scrolledwindow_right = gtk_scrolled_window_new(NULL, NULL);
-    //box_invisible = gtk_window_new(GTK_WINDOW_POPUP);
-    gtk_box_pack_start(GTK_BOX(hbox), scrolledwindow_left, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), scrolledwindow_right, TRUE, TRUE, 0);
+    gtk_widget_set_size_request (scrolledwindow_left, 150, -1);
+
+    GtkWidget *hpaned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+    gtk_paned_pack1(GTK_PANED (hpaned), scrolledwindow_left, FALSE, FALSE);
+    gtk_paned_pack2(GTK_PANED (hpaned), scrolledwindow_right, TRUE, FALSE);
+    gtk_container_add(GTK_CONTAINER(window), hpaned);
 
     // Channel list
     channel_list = gtk_list_box_new();
@@ -47,7 +46,8 @@ window_ui_t::window_ui_t(const std::vector<std::string>& source_list)
     }
 
     // Set the last-row as selected
-    gtk_list_box_select_row(GTK_LIST_BOX(channel_list),
+    gtk_list_box_select_row(
+        GTK_LIST_BOX(channel_list),
         gtk_list_box_get_row_at_index(GTK_LIST_BOX(channel_list), feeds.size()-1));
 
     // Build listbox and feed

@@ -1,6 +1,8 @@
+Maizen,https://yewtu.be/feed/channel/UCM3yhFc0-fBFuvqx1Vg2YNQ
 Megaphone New Heights,https://feeds.megaphone.fm/newheights
 NBC Podcasts,https://podcastfeeds.nbcnews.com/RPWEjhKq
 Art19,https://rss.art19.com/-exposed-
 The Daily,http://rss.art19.com/the-daily
 Megaphone ADL,https://feeds.megaphone.fm/ADL9840290619
 NBC Dateline,https://podcastfeeds.nbcnews.com/dateline-nbc
+American Renaissance,https://www.amren.com/category/podcasts/feed/
