@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <vector>
 #include <type_traits>
+#include <filesystem>
 #include <events.h>
 #include <helpers.h>
 
@@ -23,6 +24,7 @@ struct feed_item_t
     std::string title;
     std::string link;
     std::string description;
+    std::filesystem::path image;
 };
 
 struct feed_ui_t

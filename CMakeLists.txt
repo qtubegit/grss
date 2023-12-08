@@ -28,15 +28,19 @@ endif()
 find_library(MRSS_LIBRARY
     NAMES mrss)
 
-message(STATUS ${MRSS_LIBRARY})
+find_library(CURL_LIBRARY
+    NAMES curl)
 
 find_library(NXML_LIBRARY
     NAMES nxml)
 
+message(STATUS ${MRSS_LIBRARY})
 message(STATUS ${NXML_LIBRARY})
 message(STATUS ${GTK3_LIBRARIES})
+message(STATUS ${CURL_LIBRARY})
 
 target_link_libraries(minrss
     ${GTK3_LIBRARIES}
     ${MRSS_LIBRARY}
-    ${NXML_LIBRARY})
+    ${NXML_LIBRARY}
+    ${CURL_LIBRARY})
