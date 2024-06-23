@@ -7,7 +7,8 @@ void feed_ui_t::build_feed(GtkListBox *listbox)
     mrss_error_t err;
     mrss_t *root = NULL;
     mrss_item_t *channel = NULL, *item = NULL;
-    
+    image_downloader_t downloader;
+
     // If it's a refresh call, do not allocate further memory
     if constexpr (REFRESH)
     {
@@ -17,11 +18,12 @@ void feed_ui_t::build_feed(GtkListBox *listbox)
             fprintf(stderr, "Error while parsing url: %s\n", mrss_strerror(err));
             return;
         }
+        downloader.download_image(root->image_url, "channel_image");
 
         if (root->title != NULL)
             title = root->title;
     }
-
+    
     GtkWidget *title_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
 
     // Create and add a label for the title
@@ -42,6 +44,14 @@ void feed_ui_t::build_feed(GtkListBox *listbox)
 
     // Insert title into listbox
     gtk_list_box_insert(listbox, title_row, 0);
+
+    GtkAllocation alloc;
+    GtkWidget* w = GTK_WIDGET(listbox);
+    gtk_widget_get_allocation(w, &alloc);
+    GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file_at_scale("channel_image", alloc.width, alloc.width, true, NULL);
+    GtkWidget *image = gtk_image_new_from_pixbuf(pixbuf);
+    gtk_box_pack_start(GTK_BOX(title_box), image, FALSE, FALSE, 10);
+
 
     int i = 1;
     GtkListBoxRow *row = NULL;
